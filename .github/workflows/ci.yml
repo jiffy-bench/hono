@@ -26,6 +26,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version-file: '.tool-versions'
@@ -53,6 +74,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2
         with:
           deno-version-file: '.tool-versions'
@@ -71,6 +113,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: '.tool-versions'
@@ -92,6 +155,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: '.tool-versions'
@@ -113,6 +197,27 @@ jobs:
         node: ['20.x', '22.x', '24.x']
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: ${{ matrix.node }}
@@ -134,6 +239,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: "Replay farm: restore upstream's CI files (upstream's tests read them)"
+        shell: bash
+        run: |
+          set -eu
+          cd "$GITHUB_WORKSPACE"
+          src=.github/replay-farm/upstream
+          [ -d "$src" ] || exit 0
+          list="$RUNNER_TEMP/replay-farm-restore"
+          (cd "$src" && find . -type f | sed 's|^\./||') > "$list"
+          if git rev-parse --git-dir >/dev/null 2>&1; then
+            git --literal-pathspecs ls-files -z -- .github/replay-farm | xargs -0 -r git --literal-pathspecs update-index --skip-worktree --
+            exclude="$(git rev-parse --git-path info/exclude)"
+            mkdir -p "$(dirname "$exclude")"
+            while IFS= read -r f; do
+              if git --literal-pathspecs ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                git --literal-pathspecs update-index --skip-worktree -- "$f"
+              else printf '/%s\n' "$(printf '%s' "$f" | sed -e 's/[][*?\\!#]/\\&/g' -e 's/ $/\\ /')" >> "$exclude"; fi
+            done < "$list"
+          fi
+          cp -R "$src/." .
+          rm -rf .github/replay-farm
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version-file: '.tool-versions'
