@@ -101,7 +101,7 @@ jobs:
           step: setup
       - run: pnpm run test $TENSILE_VITEST_ARGS $TENSILE_REPORT_ARGS
         env:
-          TENSILE_REPORT_ARGS: --reporter=default --reporter=json --outputFile.json=${{ github.workspace }}/.jiffy/tests-vitest.json
+          TENSILE_REPORT_ARGS: --reporter=default --reporter=json --outputFile.json=${{ github.workspace }}/.jiffy/tests-vitest.json --reporter=junit --outputFile.junit=${{ github.workspace }}/.jiffy/junit-vitest.xml
           TENSILE_VITEST_ARGS: ${{ steps.tensile-record.outputs.args }}
       - name: Tensile vitest collect
         if: ${{ !cancelled() && steps.tensile-record.outcome != 'skipped' }}
@@ -127,6 +127,23 @@ jobs:
           put() { curl -sS --fail-with-body -X PUT -H "Authorization: Bearer $token" -H "content-type: application/json" --data-binary @"$1" "$SERVER/v1/maps/$GITHUB_REPOSITORY/$GITHUB_SHA/$2/$3"; echo; }
           for f in "${parts[@]}"; do case "$f" in *-nodes.json | *-nodes.always-run.json) continue;; esac; put "$f" parts "$PART-${f%.json}"; done
           for f in report-*.json; do put "$f" durations "$PART-${f%.json}"; done
+      - name: "Replay farm: is the Trunk token set"
+        id: trunk-token
+        if: ${{ always() }}
+        continue-on-error: true
+        shell: bash
+        env:
+          TRUNK_TOKEN_SET: ${{ secrets.TRUNK_API_TOKEN }}
+        run: |
+          if [ -n "$TRUNK_TOKEN_SET" ]; then echo "set=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Upload test results to Trunk
+        if: ${{ always() && steps.trunk-token.outputs.set == 'true' }}
+        continue-on-error: true
+        uses: trunk-io/analytics-uploader@a86313c7029d22e6ea2d5c346060a224d90053dc
+        with:
+          junit-paths: .jiffy/junit-vitest.xml
+          org-slug: passport-mcp
+          token: ${{ secrets.TRUNK_API_TOKEN }}
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: coverage-main
