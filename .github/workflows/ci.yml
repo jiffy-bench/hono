@@ -75,7 +75,7 @@ jobs:
           fi
       - name: Tensile selection (shadow)
         id: tensile
-        uses: rsyed94/tensile-action@bf465a2f8f66e7225ed32003c1661ee984aa33d3
+        uses: rsyed94/tensile-action@565d2d0b8a21124e4bdffce3a82a90c826692b78
         continue-on-error: true
         with:
           phase: select
@@ -85,21 +85,28 @@ jobs:
           service-url: https://jiffy-app-production.up.railway.app
           check-run-id: ${{ job.check_run_id }}
           matrix-key: ${{ toJSON(matrix) }}
-          report: .jiffy/no-report.json
+          report: .jiffy/tests-vitest.json
+      - name: "Replay farm: a directory for the test report"
+        continue-on-error: true
+        shell: bash
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.jiffy"
+          echo .jiffy/ >> "$GITHUB_WORKSPACE/.git/info/exclude"
       - name: Tensile vitest recorder
         id: tensile-record
         if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (true) }}
         continue-on-error: true
-        uses: rsyed94/tensile-action/vitest@bf465a2f8f66e7225ed32003c1661ee984aa33d3
+        uses: rsyed94/tensile-action/vitest@565d2d0b8a21124e4bdffce3a82a90c826692b78
         with:
           step: setup
-      - run: pnpm run test $TENSILE_VITEST_ARGS
+      - run: pnpm run test $TENSILE_VITEST_ARGS $TENSILE_REPORT_ARGS
         env:
+          TENSILE_REPORT_ARGS: --reporter=default --reporter=json --outputFile.json=${{ github.workspace }}/.jiffy/tests-vitest.json
           TENSILE_VITEST_ARGS: ${{ steps.tensile-record.outputs.args }}
       - name: Tensile vitest collect
         if: ${{ !cancelled() && steps.tensile-record.outcome != 'skipped' }}
         continue-on-error: true
-        uses: rsyed94/tensile-action/vitest@bf465a2f8f66e7225ed32003c1661ee984aa33d3
+        uses: rsyed94/tensile-action/vitest@565d2d0b8a21124e4bdffce3a82a90c826692b78
         with:
           step: collect
       - name: "Replay farm: send the coverage to Tensile"
